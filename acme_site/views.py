@@ -93,6 +93,9 @@ def gettemplates(request):
         page = response.read()
         
         status = page
+        print "Im here"
+        print status
+
     except Exception,e:
         status = "fail: " + str(e)
     json_data = {}
@@ -247,7 +250,7 @@ def filetree(request):
    r=['<ul class="jqueryFileTree" style="display: none;">']
    try:
        r=['<ul class="jqueryFileTree" style="display: none;">']
-       d=urllib.unquote(request.POST.get('dir','/Users/harris112/Projects/aims/acme-site'))
+       d=urllib.unquote(request.POST.get('dir','static'))
        for f in os.listdir(d):
            ff=os.path.join(d,f)
            if os.path.isdir(ff):
