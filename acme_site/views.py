@@ -93,8 +93,6 @@ def gettemplates(request):
         page = response.read()
         
         status = page
-        print "Im here"
-        print status
 
     except Exception,e:
         status = "fail: " + str(e)
