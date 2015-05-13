@@ -22,3 +22,7 @@ acme_site/static/http.py
 acme_admin/static/
 update.py
 acme_site/migrations
+
+*.sublime-project
+*.sublime-workspace
+db
