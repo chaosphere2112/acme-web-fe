@@ -85,7 +85,8 @@ def expects_json(f):
     Decorator that parses HTTP body and passes it in as a kwarg (json_data=)
     """
     def wrapper(request, *args, **kwargs):
-        # Firefox appends "; charset utf8" to content type header, so we'll just do this in a slightly smarter way...
+        # Firefox appends "; charset utf8" to content type header, so we'll
+        # just do this in a slightly smarter way...
         if "application/json" in request.META.get("CONTENT_TYPE", ''):
             data = request.body
             try:
@@ -141,7 +142,7 @@ def issue_form(request):
     questions = CategoryQuestion.objects.all()
     roots = [q for q in questions if q.is_root()]
     return HttpResponse(render_template(request, "issues/issue.html",
-                        {"root_questions": roots}))
+                                        {"root_questions": roots}))
 
 
 @post_only
@@ -160,7 +161,8 @@ def make_issue(request):
 
     issue.save()
 
-    messages.success(request, "Created issue and subscribed you to notifications for it.")
+    messages.success(
+        request, "Created issue and subscribed you to notifications for it.")
 
     return HttpResponseRedirect(reverse(issue_form))
 
@@ -228,7 +230,7 @@ def show_question(request, source):
     Displays the question-builder
     """
 
-    s = IssueSource.objects.get(name__iexact=source)
+    s = IssueSource.objects.get(id=source)
     # Root question of every group of categories has no "no" value.
     questions = s.categoryquestion_set.all()
     roots = []
@@ -374,11 +376,14 @@ def github_jira_sync(request, json_data=None):
         i_model = source.create_issue(issue)
 
     if json_data["action"] == "closed":
-        # Grab the comments, check for a comment by the closer with time breakdown
-        r = requests.get(issue["url"] + "/comments", headers={"Authorization": "token %s" % settings.GITHUB_KEY})
+        # Grab the comments, check for a comment by the closer with time
+        # breakdown
+        r = requests.get(
+            issue["url"] + "/comments", headers={"Authorization": "token %s" % settings.GITHUB_KEY})
         comments = r.json()
 
-        reg = re.compile(r'^((?P<days>\d+)[dD])?((?P<hours>\d+)[hH])?((?P<minutes>\d+)[mM])?$')
+        reg = re.compile(
+            r'^((?P<days>\d+)[dD])?((?P<hours>\d+)[hH])?((?P<minutes>\d+)[mM])?$')
 
         default = settings.JIRA_DEFAULT_COMPLETION_TIME
 
@@ -391,7 +396,8 @@ def github_jira_sync(request, json_data=None):
             if m is None:
                 continue
             time = m.groupdict(0)
-            days, hours, minutes = int(time["days"]), int(time["hours"]), int(time["minutes"])
+            days, hours, minutes = int(time["days"]), int(
+                time["hours"]), int(time["minutes"])
             break
 
         i_model.close_linked(days, hours, minutes)
@@ -399,3 +405,32 @@ def github_jira_sync(request, json_data=None):
         i_model.open_linked()
 
     return HttpResponse("Created")
+
+
+@can_add("issuesource")
+@can_edit("issuesource")
+@can_remove("issuesource")
+def show_sources(request):
+    s = IssueSource.objects.all()
+    return HttpResponse(
+        render_template(
+            request,
+            "issues/admin.html",
+            {"sources": s}
+        ))
+
+
+def source_edit(request, source):
+    pass
+
+
+def source_issues(request, source):
+    pass
+
+
+def source_link(request, source):
+    pass
+
+
+def source_remove(request, source):
+    pass

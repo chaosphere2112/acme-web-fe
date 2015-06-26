@@ -96,6 +96,8 @@ function eraseCookie(name) {
 }
 
 function ajax_json(url, method, success, data, failure) {
+	// ugly hack, but I moved the base of this to a different place, so it needed to be done.
+	url = "/issues/questions/" + url
 	var csrf = readCookie("csrftoken");
 	
 	headers = { "X-CSRFToken": csrf };

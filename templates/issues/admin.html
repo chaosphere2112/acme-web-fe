@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Issues Admin{% endblock %}
+
+{% block content %}
+
+<h4>Issue Sources</h4>
+<table class="table table-bordered">
+	<tr>
+	<th>Source</th>
+	<th>Tracked Issues</th>
+	<th>Actions</th>
+	</tr>
+	{% for source in sources %}
+	<tr>
+	<td>
+		<a href="/issues/sources/{{ source.id }}/edit">{{ source.name }}</a>
+	</td>
+	<td>
+		<a href="/issues/sources/{{ source.id }}/issues">{{ source.issue_set.all | length }} Issues</a>
+	</td>
+	<td>
+		<a href="/issues/sources/{{ source.id }}/questions">Edit Questions</a>
+		<a href="/issues/sources/{{ source.id }}/link">Link Source</a>
+		<a href="/issues/sources/{{ source.id }}/remove">Remove Source</a>
+	</td>
+	</tr>
+	{% endfor %}
+</table>
+
+{% endblock content %}

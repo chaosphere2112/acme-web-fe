@@ -12,5 +12,10 @@ urlpatterns = patterns(
     url(r'^questions/create/?$', views.create_question),
     url(r'^questions/delete/(\d+)/?$', views.delete_question),
     url(r'^questions/category/(\d+)/?$', views.add_category_to_question),
-    url(r'^questions/([^/]+)/?$', views.show_question)
+    url(r'^sources/?$', views.show_sources),
+    url(r'^sources/(\d+)/questions?$', views.show_question),
+    url(r'^sources/(\d+)/edit', views.source_edit),
+    url(r'^sources/(\d+)/issues', views.source_issues),
+    url(r'^sources/(\d+)/link', views.source_link),
+    url(r'^sources/(\d+)/remove', views.source_remove),
 )
