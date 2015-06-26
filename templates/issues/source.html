@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{% if source %}Edit {{source.name}}{% else %}Create Source{% end if %}{% endblock %}
+
+{% block content %}
+
+<form method="POST" action="/issues/sources/{% if source %}add{% else %}{{source.id}}/edit{% end if %}">
+
+{% if source %}
+<input type="hidden" name="source_id" value="{{source.id}}">
+{% end if %}
+
+{% csrf_token %}
+
+<input type="text" value="{% if source %}{{source.name}}{% end if %}">
+
+</form>
+
+{% endblock content %}
