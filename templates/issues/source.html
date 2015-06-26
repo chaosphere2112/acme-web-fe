@@ -1,17 +1,43 @@
 {% extends "base.html" %}
-{% block title %}{% if source %}Edit {{source.name}}{% else %}Create Source{% end if %}{% endblock %}
+{% block title %}{% if source %}Edit {{source.name}}{% else %}Create Source{% endif %}{% endblock %}
 
 {% block content %}
 
-<form method="POST" action="/issues/sources/{% if source %}add{% else %}{{source.id}}/edit{% end if %}">
+<form method="POST" action="/issues/sources/{% if not source %}add{% else %}{{source.id}}/edit{% endif %}">
 
 {% if source %}
 <input type="hidden" name="source_id" value="{{source.id}}">
-{% end if %}
+{% endif %}
 
 {% csrf_token %}
+{% load bootstrap_tags %}
+{{ form | as_bootstrap }}
+<!--
+<div class="form-group">
+	<label for="name">Source Name</label>
+	<input type="text" class="form-control" name="name" value="{% if source %}{{source.name}}{% endif %}">
+</div>
 
-<input type="text" value="{% if source %}{{source.name}}{% end if %}">
+<div class="form-group">
+	<label for="type">Source Type</label>
+	<select class="form-control" id="type">
+		<option value="github">GitHub</option>
+		<option value="jira">JIRA</option>
+	</select>
+</div>
+
+<div class="form-group">
+	<label for="base_url">URL</label>
+	<input type="url" class="form-control" name="base_url" value="{% if source %}{{ source.base_url }}{% endif %}">
+</div>
+
+<div class="form-group">
+	<label for="required">Required Info</label>
+	<textarea class="form-control" name="required">{{ source.required_info }}</textarea>
+</div>
+-->
+
+<button class="btn btn-primary" type="submit">Submit</button>
 
 </form>
 

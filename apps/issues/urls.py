@@ -14,6 +14,7 @@ urlpatterns = patterns(
     url(r'^questions/category/(\d+)/?$', views.add_category_to_question),
     url(r'^sources/?$', views.show_sources),
     url(r'^sources/(\d+)/questions?$', views.show_question),
+    url(r'^sources/add', views.source_add),
     url(r'^sources/(\d+)/edit', views.source_edit),
     url(r'^sources/(\d+)/issues', views.source_issues),
     url(r'^sources/(\d+)/link', views.source_link),

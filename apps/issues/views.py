@@ -23,6 +23,7 @@ from hashlib import sha1
 from django.conf import settings
 import requests
 import re
+from .forms import SourceForm
 
 
 # Convenience functions / decorators
@@ -420,8 +421,28 @@ def show_sources(request):
         ))
 
 
+def source_add(request):
+    if request.method == "POST":
+        form = SourceForm(request.POST)
+
+        if form.is_valid():
+            source = IssueSource()
+            values = form.cleaned_data
+            source.name = values["name"]
+            source.base_url = values["url"]
+            source.type = values["type"]
+            source.required = values["required"]
+            source.save()
+            messages.success("Created source '%s'" % source.name)
+            return HttpResponseRedirect("/issues/sources")
+        else:
+            return HttpResponseBadRequest("Invalid form")
+    return HttpResponse(render_template(request, "issues/source.html", {"form": SourceForm()}))
+
+
 def source_edit(request, source):
-    pass
+    s = IssueSource.objects.get(id=source)
+    return HttpResponse(render_template(request, "issues/source.html", {"source": s}))
 
 
 def source_issues(request, source):

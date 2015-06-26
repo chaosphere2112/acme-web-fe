@@ -139,7 +139,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'captcha',
     'issues',
-    'django_nose'
+    'django_nose',
+    'django_forms_bootstrap'
     # 'django.contrib.admindocs',
 )
 
