@@ -425,15 +425,11 @@ def source_add(request):
     if request.method == "POST":
         form = SourceForm(request.POST)
 
-        if form.is_valid():
-            source = IssueSource()
-            values = form.cleaned_data
-            source.name = values["name"]
-            source.base_url = values["url"]
-            source.type = values["type"]
-            source.required = values["required"]
+        source = form.build_source()
+
+        if source:
             source.save()
-            messages.success("Created source '%s'" % source.name)
+            messages.success(request, "Created source '%s'" % source.name)
             return HttpResponseRedirect("/issues/sources")
         else:
             return HttpResponseBadRequest("Invalid form")
@@ -441,8 +437,27 @@ def source_add(request):
 
 
 def source_edit(request, source):
-    s = IssueSource.objects.get(id=source)
-    return HttpResponse(render_template(request, "issues/source.html", {"source": s}))
+    if request.method == "POST":
+        
+        try:
+            source = IssueSource.objects.get(id=source)
+        except IssueSource.DoesNotExist:
+            return HttpResponseBadRequest("No source matching %d found" % source)
+
+        form = SourceForm(request.POST)
+
+        s = form.set_source(source)
+        if s:
+            s.save()
+            messages.success(request, "Updated source '%s'" % source.name)
+            return HttpResponseRedirect("/issues/sources")
+        else:
+            return HttpResponseBadRequest("Form invalid")
+
+    else:
+        s = IssueSource.objects.get(id=source)
+        form = SourceForm(source=s)
+        return HttpResponse(render_template(request, "issues/source.html", {"form": form, "source": s}))
 
 
 def source_issues(request, source):

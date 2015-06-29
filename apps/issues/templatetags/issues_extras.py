@@ -2,8 +2,17 @@ from django import template
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from issues.models import IssueCategory
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 register = template.Library()
+
+@register.filter(needs_autoescape=True)
+def is_issue_admin(user, autoescape=True):
+    if user.groups.filter(name="Issue Admin"):
+        return True
+    else:
+        return False
 
 
 @register.filter(needs_autoescape=True)

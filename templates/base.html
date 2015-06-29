@@ -81,6 +81,10 @@
             {% if user.is_authenticated %}
             <li class="navbar-right"><a href="/acme/add_credentials">{{ user.username }}</a></li>
             <li class="navbar-right"><a href="/acme/logout">Log Out</a></li>
+            {% load issues_extras %}
+            {% if user|is_issue_admin %}
+            <li class="navbar-right"><a href="/issues/sources">Issues Admin</a></li>
+            {% endif %}
             {% else %}
             <li class="navbar-right"><a href="/acme/login?next={% url 'index' %}">Welcome Guest</a></li>
             <li class="navbar-right"><a href="/acme/login?next={% url 'index' %}">Log In</a></li>
