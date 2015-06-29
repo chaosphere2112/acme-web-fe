@@ -1,5 +1,5 @@
 from django import forms
-
+from .models import IssueSource
 
 class SourceForm(forms.Form):
     name = forms.CharField(label="Source Name")

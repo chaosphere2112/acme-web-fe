@@ -421,6 +421,7 @@ def show_sources(request):
         ))
 
 
+@can_add("issuesource")
 def source_add(request):
     if request.method == "POST":
         form = SourceForm(request.POST)
@@ -436,9 +437,9 @@ def source_add(request):
     return HttpResponse(render_template(request, "issues/source.html", {"form": SourceForm()}))
 
 
+@can_edit("issuesource")
 def source_edit(request, source):
     if request.method == "POST":
-        
         try:
             source = IssueSource.objects.get(id=source)
         except IssueSource.DoesNotExist:
@@ -468,5 +469,14 @@ def source_link(request, source):
     pass
 
 
+@can_remove("issuesource")
+@post_only
 def source_remove(request, source):
-    pass
+    try:
+        source = IssueSource.objects.get(id=source)
+        source.delete()
+        return HttpResponse(
+            json.dumps({"status": "Success"})
+        )
+    except IssueSource.DoesNotExist:
+        return json_error("Invalid source provided")

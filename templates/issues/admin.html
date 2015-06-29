@@ -7,25 +7,128 @@
 <a href="/issues/sources/add">Add a new source</a>
 <table class="table table-bordered">
 	<tr>
-	<th>Source</th>
-	<th>Tracked Issues</th>
-	<th>Actions</th>
+		<th>Source</th>
+		<th>Tracked Issues</th>
+		<th>Actions</th>
 	</tr>
 	{% for source in sources %}
 	<tr>
-	<td>
-		<a href="/issues/sources/{{ source.id }}/edit">{{ source.name }}</a>
-	</td>
-	<td>
-		<a href="/issues/sources/{{ source.id }}/issues">{{ source.issue_set.all | length }} Issues</a>
-	</td>
-	<td>
-		<a href="/issues/sources/{{ source.id }}/questions">Edit Questions</a>
-		<a href="/issues/sources/{{ source.id }}/link">Link Source</a>
-		<a href="/issues/sources/{{ source.id }}/remove">Remove Source</a>
-	</td>
+		<td>
+			<a href="/issues/sources/{{ source.id }}/edit">{{ source.name }}</a>
+		</td>
+		<td>
+			<a href="/issues/sources/{{ source.id }}/issues">{{ source.issue_set.all | length }} Issues</a>
+		</td>
+		<td>
+			<a href="/issues/sources/{{ source.id }}/questions">Edit Questions</a>
+			<a href="/issues/sources/{{ source.id }}/link">Link Source</a>
+			<a class="remove_link" data-id="{{ source.id }}" data-name="{{ source.name }}">Remove Source</a>
+		</td>
 	</tr>
 	{% endfor %}
 </table>
+
+<div class="modal fade" id="confirm_delete">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Confirm Deletion</h4>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to delete source X?
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Nevermind</button>
+				<button type="button" id="delete_button" class="btn btn-danger">Yes, delete it</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+function createCookie(name, value, days) {
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = "; expires=" + date.toGMTString();
+    }
+    else var expires = "";
+
+    var fixedName = '<%= Request["formName"] %>';
+    name = fixedName + name;
+
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    createCookie(name, "", -1);
+}
+
+function ajax_json(url, method, success, data, failure) {
+	var csrf = readCookie("csrftoken");
+	
+	headers = { "X-CSRFToken": csrf };
+	settings = {"accepts":"application/json", "contentType":"application/json"};
+
+	function json_succeed(d, status, jqXHR) {
+		var j = JSON.parse(d);
+		if (success !== undefined) {
+			success(j);
+		}
+	}
+
+	settings["success"] = json_succeed;
+	settings["method"] = method;
+	settings["headers"] = headers
+
+	if (data !== undefined) {
+		if (method !== "GET") {
+			settings["data"] = JSON.stringify(data);
+		} else {
+			settings["data"] = data;
+		}
+	}
+	if (failure !== undefined) {
+		settings["error"] = failure
+	}
+	return $.ajax(url, settings);
+}
+
+$("body").ready(function(){
+	var modal = $(".modal");
+	modal.modal({"show":false});
+	var delete_button = $("#delete_button");
+
+	$(".remove_link").click(function(e) {
+		var $this = $(this);
+		var source_name = $this.attr("data-name");
+		var source_id = $this.attr("data-id");
+
+		delete_button.off("click");
+		delete_button.on("click", function(){
+			ajax_json("/issues/sources/" + source_id + "/remove", "POST", function(){
+				$this.parent().parent().detach();
+				modal.modal('hide');
+			});
+		});
+
+		modal.find(".modal-body").text("Are you sure you want to delete source " + source_name + "?");
+		modal.modal('show');
+		e.preventDefault();
+	});
+});
+</script>
 
 {% endblock content %}
