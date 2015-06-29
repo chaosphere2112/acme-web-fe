@@ -462,7 +462,11 @@ def source_edit(request, source):
 
 
 def source_issues(request, source):
-    pass
+    try:
+        source = IssueSource.objects.get(id=source)
+        return HttpResponse(render_template(request, "issues/issue_list.html", {"source": source}))
+    except IssueSource.DoesNotExist:
+        return HttpResponseBadRequest("No source found")
 
 
 def source_link(request, source):

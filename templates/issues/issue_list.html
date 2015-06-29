@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}{{source.name }} Issues{% endblock %}
+
+{% block content %}
+
+<h4>{{ source.name }} Tracked Issues</h4>
+
+<table class="table">
+	<tr>
+		<th>Issue</th>
+		<th># Subscribers</th>
+	</tr>
+	{% for issue in source.issue_set.all %}
+	<tr>
+		<td>
+			<a href="{{ issue.web_url }}">{{ issue.name }}</a>
+		</td>
+		<td>
+			{{ issue.subcribers.all | length }}
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+
+
+<div class="modal fade" id="confirm_delete">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Confirm Deletion</h4>
+			</div>
+			<div class="modal-body">
+				Are you sure you want to delete source X?
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Nevermind</button>
+				<button type="button" id="delete_button" class="btn btn-danger">Yes, delete it</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+function createCookie(name, value, days) {
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = "; expires=" + date.toGMTString();
+    }
+    else var expires = "";
+
+    var fixedName = '<%= Request["formName"] %>';
+    name = fixedName + name;
+
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    createCookie(name, "", -1);
+}
+
+function ajax_json(url, method, success, data, failure) {
+	var csrf = readCookie("csrftoken");
+	
+	headers = { "X-CSRFToken": csrf };
+	settings = {"accepts":"application/json", "contentType":"application/json"};
+
+	function json_succeed(d, status, jqXHR) {
+		var j = JSON.parse(d);
+		if (success !== undefined) {
+			success(j);
+		}
+	}
+
+	settings["success"] = json_succeed;
+	settings["method"] = method;
+	settings["headers"] = headers
+
+	if (data !== undefined) {
+		if (method !== "GET") {
+			settings["data"] = JSON.stringify(data);
+		} else {
+			settings["data"] = data;
+		}
+	}
+	if (failure !== undefined) {
+		settings["error"] = failure
+	}
+	return $.ajax(url, settings);
+}
+
+$("body").ready(function(){
+
+});
+</script>
+
+{% endblock content %}
