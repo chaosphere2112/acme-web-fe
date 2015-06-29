@@ -461,6 +461,8 @@ def source_edit(request, source):
         return HttpResponse(render_template(request, "issues/source.html", {"form": form, "source": s}))
 
 
+@can_edit("issue")
+@can_remove("issue")
 def source_issues(request, source):
     try:
         source = IssueSource.objects.get(id=source)
