@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Link Sources{% endblock %}
+
+{% block content %}
+
+{% for chain in chains %}
+	<ol class="link_chain">
+		{% for child in chain %}
+		<li class="link{% if child.id == source_id %} target{% endif %}">
+		{{ child.name }}
+		</li>
+		{% endfor %}
+	</ol>
+{% endfor %}
+
+<style>
+.target {
+	font-weight:bold;
+}
+</style>
+
+{% endblock content %}
