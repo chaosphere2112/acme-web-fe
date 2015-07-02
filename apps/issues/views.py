@@ -471,8 +471,24 @@ def source_issues(request, source):
         return HttpResponseBadRequest("No source found")
 
 
+@can_edit("issuesource")
 def source_link(request, source):
-    pass
+    try:
+        source = int(source)
+    except ValueError:
+        return HttpResponseBadRequest("No source found")
+
+    sources = IssueSource.objects.all()
+
+    chains = [[isource] for isource in sources if len(isource.issuesource_set.all()) == 0]
+
+    for root_list in chains:
+        root = root_list[0]
+        while root.linked is not None:
+            root_list.append(root.linked)
+            root = root.linked
+
+    return HttpResponse(render_template(request, "issues/source_link.html", {"chains": chains, "source_id":source}))
 
 
 @can_remove("issuesource")

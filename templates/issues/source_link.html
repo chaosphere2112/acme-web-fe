@@ -4,19 +4,38 @@
 {% block content %}
 
 {% for chain in chains %}
-	<ol class="link_chain">
+	<ul class="link_chain sortable">
 		{% for child in chain %}
 		<li class="link{% if child.id == source_id %} target{% endif %}">
 		{{ child.name }}
 		</li>
 		{% endfor %}
-	</ol>
+	</ul>
 {% endfor %}
 
 <style>
 .target {
 	font-weight:bold;
 }
+
+.link_chain {
+	float:left;
+}
 </style>
+
+<script>
+$("body").ready(function(){
+	$(".sortable").sortable({revert:true, connectWith:".sortable", cursor:"hand"}).on("sortremove", function(e, ui){
+		// Disconnect link from this list
+		console.log("Remove");
+		console.log(this);
+	}).on("sortupdate", function(e, ui){
+		// Rearrange existing chain
+		console.log("Update");
+		console.log(this);
+	});
+
+});
+</script>
 
 {% endblock content %}
