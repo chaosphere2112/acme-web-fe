@@ -1,9 +1,10 @@
 from django import forms
 from .models import IssueSource
 
+
 class SourceForm(forms.Form):
     name = forms.CharField(label="Source Name")
-    type = forms.ChoiceField(label="Source Type", choices=[("jira", "JIRA"), ("github", "GitHub")])
+    type = forms.ChoiceField(label="Source Type", choices=[("github", "GitHub"), ("jira", "JIRA")])
     url = forms.URLField(label="Source URL")
     required = forms.CharField(label="Required Info", widget=forms.Textarea)
 
@@ -18,9 +19,7 @@ class SourceForm(forms.Form):
         else:
             super(SourceForm, self).__init__(dict)
 
-
     def build_source(self):
-
         source = IssueSource()
         return self.set_source(source)
 

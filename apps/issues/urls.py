@@ -17,6 +17,5 @@ urlpatterns = patterns(
     url(r'^sources/add', views.source_add),
     url(r'^sources/(\d+)/edit', views.source_edit),
     url(r'^sources/(\d+)/issues', views.source_issues),
-    url(r'^sources/(\d+)/link', views.source_link),
     url(r'^sources/(\d+)/remove', views.source_remove),
 )

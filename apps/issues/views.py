@@ -24,6 +24,7 @@ from django.conf import settings
 import requests
 import re
 from .forms import SourceForm
+from collections import namedtuple
 
 
 # Convenience functions / decorators
@@ -408,11 +409,15 @@ def github_jira_sync(request, json_data=None):
     return HttpResponse("Created")
 
 
+JIRAProject = namedtuple("JIRAProject", ("name", "components"))
+
+
 @can_add("issuesource")
 @can_edit("issuesource")
 @can_remove("issuesource")
 def show_sources(request):
     s = IssueSource.objects.all()
+
     return HttpResponse(
         render_template(
             request,
@@ -457,8 +462,16 @@ def source_edit(request, source):
 
     else:
         s = IssueSource.objects.get(id=source)
+        from jira.client import JIRA
+        client = JIRA(server="https://acme-climate.atlassian.net",
+                      basic_auth=(settings.JIRA_USER, settings.JIRA_PASSWORD))
+        projects = client.projects()
+        project_objs = []
+        for p in projects:
+            jp = JIRAProject(name=p.name, components=client.project_components(p))
+            project_objs.append(jp)
         form = SourceForm(source=s)
-        return HttpResponse(render_template(request, "issues/source.html", {"form": form, "source": s}))
+        return HttpResponse(render_template(request, "issues/source.html", {"form": form, "source": s, "projects": project_objs}))
 
 
 @can_edit("issue")
@@ -469,26 +482,6 @@ def source_issues(request, source):
         return HttpResponse(render_template(request, "issues/issue_list.html", {"source": source}))
     except IssueSource.DoesNotExist:
         return HttpResponseBadRequest("No source found")
-
-
-@can_edit("issuesource")
-def source_link(request, source):
-    try:
-        source = int(source)
-    except ValueError:
-        return HttpResponseBadRequest("No source found")
-
-    sources = IssueSource.objects.all()
-
-    chains = [[isource] for isource in sources if len(isource.issuesource_set.all()) == 0]
-
-    for root_list in chains:
-        root = root_list[0]
-        while root.linked is not None:
-            root_list.append(root.linked)
-            root = root.linked
-
-    return HttpResponse(render_template(request, "issues/source_link.html", {"chains": chains, "source_id":source}))
 
 
 @can_remove("issuesource")

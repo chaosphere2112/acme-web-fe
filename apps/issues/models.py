@@ -2,7 +2,7 @@ from django.db import models
 from api_client import GithubClient, JIRAClient
 from django.core.exceptions import ValidationError
 from django.conf import settings
-
+from .validators import *
 
 def validate_acyclic_linked_source(value):
     """
@@ -22,13 +22,6 @@ def validate_acyclic_linked_source(value):
         raise ValidationError("Cycle detected at %d" % source.id)
     except IssueSource.DoesNotExist:
         raise ValidationError("Linked source doesn't exist")
-
-
-def validate_source_type(value):
-    if value in ("jira", "github"):
-        return
-    else:
-        raise ValidationError("Source Type %s not implemented." % value)
 
 
 class IssueSource(models.Model):
