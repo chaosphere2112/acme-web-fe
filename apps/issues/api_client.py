@@ -154,6 +154,8 @@ class JIRAClient(APIClient):
         self.component = None
 
     def authenticate(self):
+        if self._client is not None:
+            return self._client
         server = urlparse.urlparse(self.url)
         server = server.scheme + "://" + server.netloc
         self._client = JIRA(server=server, basic_auth=self.auth)
