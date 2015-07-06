@@ -439,7 +439,15 @@ def source_add(request):
             return HttpResponseRedirect("/issues/sources")
         else:
             return HttpResponseBadRequest("Invalid form")
-    return HttpResponse(render_template(request, "issues/source.html", {"form": SourceForm()}))
+    from jira.client import JIRA
+    client = JIRA(server="https://acme-climate.atlassian.net",
+                  basic_auth=(settings.JIRA_USER, settings.JIRA_PASSWORD))
+    projects = client.projects()
+    project_objs = []
+    for p in projects:
+        jp = JIRAProject(name=p.name, components=client.project_components(p))
+        project_objs.append(jp)
+    return HttpResponse(render_template(request, "issues/source.html", {"form": SourceForm(), "projects": project_objs}))
 
 
 @can_edit("issuesource")
